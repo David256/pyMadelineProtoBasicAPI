@@ -1,13 +1,11 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-
 import requests
 import json
 
-
 url_base = 'https://api.pwrtelegram.xyz/user{0}/{1}'
-
+url_login = 'https://api.pwrtelegram.xyz/phonelogin'
 
 def send_query(token, method, mode='get', params=None, url_base=url_base):
 	"""Recive the parameters value and create the full URL. After,
@@ -23,22 +21,46 @@ def send_query(token, method, mode='get', params=None, url_base=url_base):
 	result = requests.request(mode, the_url, params=params, timeout=(4, 30))
 	return check_result(mode, result)['result']
 
+def request_login(telephone, url_login=url_login):
+	result = requests.get(
+		url_login,
+		params={
+			'phone': telephone
+		}
+	)
+	return check_result('get', result)['result']
+
 def check_result(mode, result):
 	"""Check if we got an error :P
 	"""
 	if result.status_code != 200:
-		error_msg = 'Error HTTP {0} {1}, message: {2}'.format(
-			result.status_code, result.reason, result.text)
-		raise Exception(error_msg)
+		error_msg = 'Error HTTP [{0}] {1} {2}, message: {2}'.format(
+			mode, result.status_code, result.reason, result.text)
+		raise GeneralApiException(error_msg)
 
 	try:
 		jresult = result.json()
 	except Exception as e:
 		error_msg = 'The server returned an weird thing: {0}: {1}'.format(str(e), result.text.decode('utf-8'))
-		raise Exception(error_msg)
+		raise GeneralApiException(error_msg)
 
 	if not jresult['ok']:
-		error_msg = 'Error number {0}, {1}'.format(jresult['error_code'], jresult['description'])
-		raise Exception(error_msg)
+		raise ApiRequestException(jresult['error_code'], jresult['description'])
 
 	return jresult
+
+class GeneralApiException(Exception):
+	"""When check_result finds an error.
+	"""
+
+	def __init__(self, text):
+		super(GeneralApiException, self).__init__('General Api Exception. {0}'.format(text))
+
+class ApiRequestException(Exception):
+	"""When the requests was unsuccessful.
+	"""
+
+	def __init__(self, code, description):
+		super(ApiRequestException, self).__init__('A request was unsuccessful. [{0}] {1}'.format(code, description))
+		self.code = code
+		self.description = description
