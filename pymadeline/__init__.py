@@ -27,10 +27,14 @@ class pyMadeline(object):
 			mode='get',
 			params=kwargs
 		)
+
 		return jresult
 
 	@staticmethod
-	def subobjet(**kwargs):
-		"""Converts the parameters in a JSON-Object.
+	def subobject(*args, **kwargs):
+		"""Converts the parameters in a JSON-Object or a List-Object.
 		"""
-		return json.dumps(kwargs)
+		if len(args) == 0:
+			return json.dumps(kwargs)
+		else:
+			return str(list(args))
