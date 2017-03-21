@@ -18,7 +18,7 @@ def send_query(token, method, mode='get', params=None, url_base=url_base):
 	:param url_base: optional, the API url.
 	"""
 	the_url = url_base.format(token, method)
-	result = requests.request(mode, the_url, params=params, timeout=(4, 30))
+	result = requests.request(mode, the_url, params=params, timeout=30)
 	return check_result(mode, result)['result']
 
 def request_login(telephone, url_login=url_login):
