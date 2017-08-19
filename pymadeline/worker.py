@@ -34,7 +34,7 @@ def check_result(mode, result):
 	"""Check if we got an error :P
 	"""
 	if result.status_code != 200:
-		error_msg = 'Error HTTP [{0}] {1} {2}, message: {2}'.format(
+		error_msg = 'Error HTTP [{0}] {1} {2}, message: {3}'.format(
 			mode, result.status_code, result.reason, result.text)
 		raise GeneralApiException(error_msg)
 
